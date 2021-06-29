@@ -15,26 +15,34 @@
 library(dplyr)
 dataset<- read.csv('skill academy/dataset_superstore_simple.csv')
 
-#nomor 1
-summarise(dataset,max_sales = max(sales))
+# 1. Carilah customer_id yang memiliki sales paling besar!
+dataset %>% filter(sales == max(sales)) %>% select(customer_id)
 
-dataset%>% filter(sales==9892.74) %>% select(customer_id,sales)
+# 2. Sub-category apa saja yang ada di dalam category 'Office Supplies', dan masing-masing berapa banyak total profitnya?
 
-#nomor2
-dataset%>%filter(category=="Office Supplies")%>%group_by(sub_category)%>%summarise(total_profit=sum(profit))
+dataset %>%filter(category=='Office Supplies') %>%
+  group_by(sub_category)%>%
+  summarise(total_profit = sum(profit))%>%
+  select(sub_category,total_profit)
 
-#nomor 3
-dataset%>%filter(profit<0)
+#   3. Berapa banyak order yang menghasilkan profit negatif (rugi)?
+dataset%>%filter(profit<0)%>%summarise(n())
 
-#nomor 4
-maxj<-dataset%>%filter(customer_id=="JE-16165")%>%summarise(sumJE=sum(sales))
-maxk<-dataset%>%filter(customer_id=="KH-16510")%>%summarise(sumKH=sum(sales))
-maxa<-dataset%>%filter(customer_id=="AD-10180")%>%summarise(sumAD=sum(sales))
+#   4. Antara 3 customer_id ini, mana yang total sales-nya paling banyak: JE-16165, KH-16510, AD-10180?
+total_sales1=dataset %>% filter(customer_id == 'JE-16165')%>%summarise(total_sales = sum(sales))
+total_sales2=dataset %>% filter(customer_id == 'KH-16510')%>%summarise(total_sales = sum(sales))
+total_sales3=dataset %>% filter(customer_id == 'AD-10180')%>%summarise(total_sales = sum(sales))
 
-summarise(dataset,max_sales_final = max(maxj,maxa,maxk))
+hasil_sales = max(total_sales1,total_sales2,total_sales3)
+hasil_sales
 
-dataset%>%group_by(customer_id)%>%summarise(sumsales=sum(sales))%>%filter(customer_id == "JE-16165" |customer_id == "KH-16510" |customer_id == "AD-10180")%>%head(1)
-
+if(hasil_sales == total_sales1){
+  dataset %>% group_by(customer_id)%>%summarise(total_sales = sum(sales))%>%filter(customer_id == 'JE-16165')
+}else if(hasil_sales == total_sales2){
+  dataset %>% group_by(customer_id)%>%summarise(total_sales = sum(sales))%>%filter(customer_id == 'KH-16510')
+}else{
+  dataset %>% group_by(customer_id)%>%summarise(total_sales = sum(sales))%>%filter(customer_id == 'AD-10180')
+}
 
 #nomor 5
 dataset$order_date<-as.Date(dataset$order_date)
